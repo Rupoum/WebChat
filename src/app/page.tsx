@@ -39,12 +39,14 @@ export default function SidebarDemo() {
       ),
     },
   ];
+
   const [open, setOpen] = useState(false);
+
   return (
     <div
       className={cn(
-        "rounded-md flex flex-col md:flex-row bg-neutral-800 dark:bg-neutral-800 w-full  border border-neutral-900 dark:border-neutral-700 overflow-hidden",
-        "h-screen " // for your use case, use `h-screen` instead of `h-[60vh]`
+        "rounded-md flex flex-col md:flex-row bg-neutral-800 dark:bg-neutral-800 w-full border border-neutral-900 dark:border-neutral-700 overflow-hidden",
+        "h-screen"
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -80,7 +82,8 @@ export default function SidebarDemo() {
     </div>
   );
 }
-export const Logo = () => {
+
+const Logo = () => {
   return (
     <Link
       href="#"
@@ -97,13 +100,14 @@ export const Logo = () => {
     </Link>
   );
 };
-export const LogoIcon = () => {
+
+const LogoIcon = () => {
   return (
     <Link
       href="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-5 w-6  dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-5 w-6 dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
     </Link>
   );
 };
@@ -114,18 +118,18 @@ const Dashboard = () => {
     <div className="flex flex-1">
       <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-900 dark:border-neutral-700 bg-neutral-900 dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
         <div className="flex gap-2">
-          {[...new Array(4)].map((i) => (
+          {[...new Array(4)].map((_, i) => (
             <div
               key={"first-array" + i}
-              className="h-20 w-full rounded-lg  bg-neutral-800 dark:bg-neutral-800 animate-pulse"
+              className="h-20 w-full rounded-lg bg-neutral-800 dark:bg-neutral-800 animate-pulse"
             ></div>
           ))}
         </div>
         <div className="flex gap-2 flex-1">
-          {[...new Array(2)].map((i) => (
+          {[...new Array(2)].map((_, i) => (
             <div
               key={"second-array" + i}
-              className="h-full w-full rounded-lg  bg-neutral-800 dark:bg-neutral-800 animate-pulse"
+              className="h-full w-full rounded-lg bg-neutral-800 dark:bg-neutral-800 animate-pulse"
             ></div>
           ))}
         </div>

@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { Input } from "../ui/input";
-import { jwtDecode } from "jwt-decode"; // Correct import
+// import { jwtDecode } from "jwt-decode"; // Correct import
 
 const Otp = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [user, setuser] = useState({ value: null });
+  //   const [user, setuser] = useState({ value: null });
   //   const [auth, setAuth] = useRecoilState(authState);
   const router = useRouter();
 
@@ -47,7 +47,7 @@ const Otp = () => {
 
       if (response.status === 200) {
         const { token, user } = response.data;
-        const decodedToken = jwtDecode<{ role: string }>(token);
+        // const decodedToken = jwtDecode<{ role: string }>(token   );
         // const user=response.data.user;
         // setAuth({
         //   isAuthenticated: true,

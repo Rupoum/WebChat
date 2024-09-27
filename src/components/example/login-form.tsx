@@ -37,6 +37,7 @@ export default function LoginForm() {
       if (response.status === 200) {
         console.log("Login successful", response.data);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response) {
         setError(

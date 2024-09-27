@@ -1,14 +1,53 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+const loginSchema = z.object({
+  email: z
+    .string()
+    .email("Invalid email address")
+    .nonempty("Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+type LoginFormInputs = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted");
+  const [error, setError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>({
+    resolver: zodResolver(loginSchema),
+  });
+  const onSubmit = async (data: LoginFormInputs) => {
+    setError(null);
+
+    try {
+      const response = await axios.post(
+        "https://wechat-3aqg.onrender.com/api/login",
+        data
+      );
+      if (response.status === 200) {
+        console.log("Login successful", response.data);
+      }
+    } catch (err: any) {
+      if (err.response) {
+        setError(
+          err.response.data.message || "Login failed. Please try again."
+        );
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
   };
+
   return (
     <div className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl flex flex-col justify-center items-center p-4 md:p-8 z-10 shadow-input bg-black">
       <h2 className="font-bold text-2xl text-neutral-300 dark:text-neutral-200">
@@ -19,14 +58,31 @@ export default function LoginForm() {
         most important people in your life no matter where they are
       </p>
 
-      <form className="sm:my-8" onSubmit={handleSubmit}>
+      <form className="sm:my-8" onSubmit={handleSubmit(onSubmit)}>
         <LabelInputContainer className="mb-4 text-white">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <Input
+            id="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message}</p>
+          )}
         </LabelInputContainer>
+
         <LabelInputContainer className="mb-4 text-white">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <Input
+            id="password"
+            placeholder="••••••••"
+            type="password"
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className="text-red-500">{errors.password.message}</p>
+          )}
         </LabelInputContainer>
 
         <button
@@ -36,6 +92,8 @@ export default function LoginForm() {
           Login &rarr;
           <BottomGradient />
         </button>
+
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
       </form>

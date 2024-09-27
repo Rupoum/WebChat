@@ -1,14 +1,75 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import * as z from "zod";
+
+// Zod validation schema
+const signupSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
+});
 
 export default function SignupFormDemo() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  // useForm setup with Zod validation
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  // Form submit handler
+  const onSubmit = async (data: unknown) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      // Submit data via axios to API
+      const response = await axios.post(
+        "https://wechat-3aqg.onrender.com/api/signup",
+        data
+      );
+      if (response.status === 200) {
+        router.push("/otp");
+        localStorage.setItem("tempUserData", JSON.stringify(data));
+        reset();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message); // Backend email error
+      } else {
+        setError("Signup failed. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl flex flex-col justify-center items-center p-4 md:p-8 z-10 shadow-input bg-black">
       <h2 className="font-bold text-2xl text-neutral-300 dark:text-neutral-200">
@@ -19,49 +80,59 @@ export default function SignupFormDemo() {
         close to the most important people in your life no matter where they are
       </p>
 
-      <form className="sm:my-8" onSubmit={handleSubmit}>
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4 text-white">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input
-              id="firstname"
-              placeholder="Tyler"
-              type="text"
-              className="text-white "
-            />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input
-              id="lastname"
-              placeholder="Durden"
-              type="text"
-              className="text-white"
-            />
-          </LabelInputContainer>
+      {error && (
+        <div className="bg-red-500 text-white w-full text-center py-2 rounded-md mb-4">
+          {error}
         </div>
+      )}
+
+      <form className="sm:my-8" onSubmit={handleSubmit(onSubmit)}>
+        <LabelInputContainer className="mb-4 text-white">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            placeholder="Your Name"
+            type="text"
+            {...register("name")}
+            disabled={loading}
+          />
+          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+        </LabelInputContainer>
+
         <LabelInputContainer className="mb-4 text-white">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <Input
+            id="email"
+            placeholder="example@domain.com"
+            type="email"
+            {...register("email")}
+            disabled={loading}
+          />
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message}</p>
+          )}
         </LabelInputContainer>
+
         <LabelInputContainer className="mb-4 text-white">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-8 text-white">
-          <Label htmlFor="twitterpassword">Your twitter password</Label>
           <Input
-            id="twitterpassword"
+            id="password"
             placeholder="••••••••"
-            type="twitterpassword"
+            type="password"
+            {...register("password")}
+            disabled={loading}
           />
+          {errors.password && (
+            <p className="text-red-500">{errors.password.message}</p>
+          )}
         </LabelInputContainer>
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
+          disabled={loading}
         >
-          Sign up &rarr;
+          {loading ? "Signing up..." : "Sign up"}
           <BottomGradient />
         </button>
 
